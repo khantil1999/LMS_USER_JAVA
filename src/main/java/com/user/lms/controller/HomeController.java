@@ -12,6 +12,10 @@ public class HomeController {
         return "about";
     }
 
+    @GetMapping("/home")
+    public String loadHomePage() {
+        return "home";
+    }
     @GetMapping("/service")
     public String loadServicePage() {
         return "service";

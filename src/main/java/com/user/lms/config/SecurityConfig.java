@@ -1,5 +1,6 @@
 package com.user.lms.config;
 
+import com.user.lms.domain.UserAuthenticationSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -8,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @EnableWebSecurity
 @Configuration
@@ -18,14 +20,16 @@ public class SecurityConfig  {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.userDetailsService(userDetailsService)
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/", "/index","/about","/service","/css/**",
-                                "/js/**","/img/**","/scss/**",
-                                "/lib/**","/contact","/register","/register/save",
-                                "/verify","/forgotPassword","resetPassword").permitAll()
+                        .requestMatchers("/", "/index", "/about", "/service", "/css/**",
+                                "/js/**", "/img/**", "/scss/**", "/lib/**", "/contact",
+                                "/register", "/register/save", "/verify", "/forgotPassword", "/resetPassword")
+                        .permitAll()
+                        .requestMatchers("/home").authenticated() // Require authentication for the home page
                         .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form
                         .loginPage("/login")
+                        .successHandler(authenticationSuccessHandler())
                         .permitAll()
                 )
                 .logout((logout) -> logout.permitAll());
@@ -44,5 +48,9 @@ public class SecurityConfig  {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+        return new UserAuthenticationSuccessHandler();
+    }
 
 }

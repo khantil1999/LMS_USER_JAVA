@@ -36,12 +36,6 @@ public class UserService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private EmailService emailService;
-
-    @Autowired
-    private PasswordResetTokenRepository passwordResetTokenRepository;
-
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
