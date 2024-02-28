@@ -3,16 +3,15 @@ package com.user.lms.models;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+@Data
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserModel {
+
 
     @NotEmpty(message = "First name cannot be blank!")
     @Pattern(regexp = "^[a-zA-Z ]+$", message = "First name should only contain alphabets and spaces")
@@ -36,6 +35,8 @@ public class UserModel {
 
     @NotEmpty(message = "Confirm password cannot be blank!")
     private String confirmPassword;
+
+    private Boolean isVerified;
 
     public boolean isPasswordAndConfirmPasswordMatch() {
         return password != null && password.equals(confirmPassword);

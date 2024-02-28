@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <title>Logistic - Shipping Company Website Template</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Roboto:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet"> -->
+
+    <!-- Libraries Stylesheet -->
+    <!-- <link href="/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet"> -->
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        /* Custom background color */
+        body {
+            background-color: #f8f9fa;
+        }
+
+        /* Style for the card */
+        .custom-card {
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+        }
+
+        /* Style for the image container */
+        .image-container {
+            overflow: hidden;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+
+        /* Style for the image */
+        .truck-image {
+            width: 100%;
+            height: auto;
+        }
+
+        /* Style for the card body */
+        .custom-card-body {
+            padding: 20px;
+        }
+
+        /* Style for the details */
+        .detail {
+            margin-bottom: 10px;
+        }
+        .owl-carousel-item img {
+            width: 100%;
+            height: auto;
+        }
+
+        .owl-prev,
+        .owl-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 30px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .owl-prev {
+            left: 10px;
+        }
+
+        .owl-next {
+            right: 10px;
+        }
+        .image-size{
+            height: 300px;
+        }
+    </style>
+</head>
+
+<body>
+
+
+
+<!-- Navbar Start -->
+<nav class="navbar navbar-expand-lg bg-white navbar-light shadow border-top border-5 border-primary sticky-top p-0">
+    <a th:href="@{/index}" class="navbar-brand bg-primary d-flex align-items-center px-4 px-lg-5">
+        <h2 class="mb-2 text-white">Logistic Management System</h2>
+    </a>
+    <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <div class="navbar-nav ms-auto p-4 p-lg-0">
+            <a th:href="@{/index}" class="nav-item nav-link active">Home</a>
+            <a th:href="@{/about}" class="nav-item nav-link">About</a>
+            <a th:href="@{/service}" class="nav-item nav-link">Services</a>
+
+            <a th:href="@{/contact}" class="nav-item nav-link">Contact</a>
+            <a th:href="@{/login}" class="nav-item nav-link">Login</a>
+        </div>
+        <!--<h4 class="m-0 pe-lg-5 d-none d-lg-block"><i class="fa fa-headphones text-primary me-3"></i>+012 345 6789</h4>-->
+    </div>
+</nav>
+
+
+<div class="container-xxl py-5">
+    <div class="container py-5">
+        <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+
+        </div>
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card custom-card">
+                        <div class="image-container">
+                            <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    <div class="carousel-item active">
+                                        <img src="/img/team-1.jpg" class="d-block image-size w-100 " alt="...">
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img src="/img/team-1.jpg" class="d-block image-size w-100 " alt="...">
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img src="/img/team-1.jpg" class="d-block image-size w-100 " alt="...">
+                                    </div>
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="custom-card-body" id="#truckDetails">
+                            <h5 class="card-title text-center mb-4">Truck Details</h5>
+                            <div class="detail" id="model"></div>
+                            <div class="detail" id="licensePlate"></div>
+                            <div class="detail" id="capacity"></div>
+                            <div class="detail" id="manufacturer"></div>
+                            <div class="detail" id="fuelType"></div>
+                            <div class="detail" id="currentMileage"></div>
+                            <div class="detail" id="wheel"></div>
+                            <div class="detail" id="provider"></div>
+                            <div class="detail" id="contact"></div>
+                            <div class="detail" id="email"></div>
+                            <div class="text-center mt-4">
+                                <a th:href="@{/index}" class="btn btn-secondary mr-2">Back</a>
+                                <button class="btn btn-primary ml-2">Book</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-0 back-to-top"><i class="fa fa-arrow-up"></i></a>
+
+
+<!-- JavaScript Libraries -->
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/lib/wow/wow.min.js"></script>
+<script src="/lib/easing/easing.min.js"></script>
+<script src="/lib/waypoints/waypoints.min.js"></script>
+<script src="/lib/counterup/counterup.min.js"></script>
+<script src="/lib/owlcarousel/owl.carousel.min.js"></script>
+
+
+
+<!-- Template Javascript -->
+<!-- <script src="/js/main.js"></script> -->
+<script th:inline="javascript">
+
+    $(document).ready(function(){
+       let id = getParameterByName("id",window.location.href)
+        getVehiclesById(id)
+    });
+    function getParameterByName(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+    function getVehiclesById(id) {
+        $.ajax({
+            url: '/vehicle?id='+id, // Replace 'your-api-endpoint' with your actual API endpoint
+            type: 'GET',
+            success: function(response) {
+                // Handle successful response
+                console.log('Response:', response);
+                bindTruckDetails(response)
+
+            },
+            error: function(xhr, status, error) {
+                // Handle errors
+                console.error('Error:', error);
+            }
+        });
+    }
+    function bindTruckDetails(truckData) {
+        // Bind details to HTML elements
+        $('#model').html(`<strong>Model:</strong> ${truckData.model}`);
+        $('#licensePlate').html(`<strong>License Plate:</strong> ${truckData.licensePlate}`);
+        $('#capacity').html(`<strong>Capacity:</strong> ${truckData.capacity}`);
+        $('#manufacturer').html(`<strong>Manufacturer:</strong> ${truckData.manufacturer}`);
+        $('#fuelType').html(`<strong>Fuel Type:</strong> ${truckData.fuelType}`);
+        $('#currentMileage').html(`<strong>Current Mileage:</strong> ${truckData.currentMileage}`);
+        $('#wheel').html(`<strong>Wheel:</strong> ${truckData.wheel}`);
+        $('#provider').html(`<strong>Provider:</strong> ${truckData.truckProvider.firstName} ${truckData.truckProvider.lastName}`);
+        $('#contact').html(`<strong>Contact:</strong> ${truckData.truckProvider.mobileNo}`);
+        $('#email').html(`<strong>Email:</strong> ${truckData.truckProvider.email}`);
+
+        // Add images to the carousel
+    }
+
+</script>
+</body>
+
+</html>

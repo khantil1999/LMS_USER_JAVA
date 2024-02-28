@@ -27,7 +27,7 @@ public class UserAuthenticationSuccessHandler extends SavedRequestAwareAuthentic
 
         for (GrantedAuthority authority : authorities) {
             if (authority.getAuthority().equals("USER")) {
-                response.sendRedirect("/home");
+                response.sendRedirect("/index");
                 return;
             }
         }

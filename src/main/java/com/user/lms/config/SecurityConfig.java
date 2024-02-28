@@ -22,9 +22,10 @@ public class SecurityConfig  {
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/", "/index", "/about", "/service", "/css/**",
                                 "/js/**", "/img/**", "/scss/**", "/lib/**", "/contact",
+                                "/vehicles",
                                 "/register", "/register/save", "/verify", "/forgotPassword", "/resetPassword")
                         .permitAll()
-                        .requestMatchers("/home").authenticated() // Require authentication for the home page
+                        .requestMatchers("/home","/truck/details","/vehicle").authenticated() // Require authentication for the home page
                         .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form
