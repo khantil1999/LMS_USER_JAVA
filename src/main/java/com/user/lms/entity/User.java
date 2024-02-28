@@ -20,7 +20,7 @@ import lombok.Setter;
 public class User {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 
 	private Long id;
 
@@ -44,6 +44,9 @@ public class User {
 
 	@Column(name= "status")
 	private String status;
+
+	@Column(name = "is_approved")
+	private Boolean isApproved = true;
 
 	@OneToMany(mappedBy = "user")
 	private List<UserRoles> userRoles = new ArrayList<>();

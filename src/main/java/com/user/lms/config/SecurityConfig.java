@@ -29,6 +29,7 @@ public class SecurityConfig  {
                 )
                 .formLogin((form) -> form
                         .loginPage("/login")
+
                         .successHandler(authenticationSuccessHandler())
                         .permitAll()
                 )
