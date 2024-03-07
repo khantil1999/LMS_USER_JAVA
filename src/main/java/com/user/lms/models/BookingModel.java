@@ -5,6 +5,7 @@ import com.user.lms.entity.User;
 import com.user.lms.entity.VehicleList;
 import lombok.*;
 
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -13,6 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class BookingModel {
+
+    private Long id;
 
     private String startDestination;
 
@@ -30,8 +33,20 @@ public class BookingModel {
 
     private int labourerCharge;
 
-    private List<User> users;
+    private int totalAmount;
 
-    private List<VehicleList> vehicles;
+    private UserDetailsModel user;
+
+    private UserDetailsModel truckProvider;
+
+    private VehicleListModel vehicles;
+
+    private String declineReason;
+
+    private Boolean isTPApproved;
+
+    private Boolean isCustApproved;
+
+    private Date bookingDate;
 
 }

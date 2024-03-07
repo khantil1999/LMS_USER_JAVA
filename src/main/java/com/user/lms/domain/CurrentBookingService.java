@@ -12,19 +12,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class BookingService {
-
+public class CurrentBookingService {
+    
     @Autowired
-    BookingRepository bookingRepository;
+    private BookingRepository bookingRepository;
+    public List<BookingModel> getAllBookings() {
+        List<Booking> booking = this.bookingRepository.findAll();
+        List<BookingModel> detailsModels = new ArrayList<>();
+        booking.forEach(bookings -> {
+            BookingModel bookingModel = this.mapVehicle(bookings);
+            detailsModels.add(bookingModel);
 
-    public BookingModel getBookingById(Long id){
-        System.out.println("get Booking by id in service----");
-        System.out.println("booking id is---"+id);
-        Booking booking = this.bookingRepository.getReferenceById(id);
-        return this.mapVehicle(booking);
+        });
+        return detailsModels;
     }
 
-    private BookingModel mapVehicle(Booking booking){
+    private BookingModel mapVehicle(Booking booking) {
+
         BookingModel bookingModel = new BookingModel();
         System.out.println("Ss:"+booking);
 
@@ -74,16 +78,6 @@ public class BookingService {
         bookingModel.setBookingDate(booking.getBookingDate());
 
         return bookingModel;
-    }
 
-    public List<BookingModel> getAllBookings() {
-        List<Booking> booking = this.bookingRepository.findAll();
-        List<BookingModel> detailsModels = new ArrayList<>();
-        booking.forEach(bookings -> {
-            BookingModel bookingModel = this.mapVehicle(bookings);
-            detailsModels.add(bookingModel);
-
-        });
-        return detailsModels;
     }
 }

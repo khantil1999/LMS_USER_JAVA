@@ -4,6 +4,7 @@ package com.user.lms.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -42,9 +43,31 @@ public class Booking {
     @Column(name = "labourer_charge")
     private int labourerCharge;
 
-    @OneToMany(mappedBy = "id",fetch = FetchType.EAGER)
-    private List<User> users;
+    @Column(name = "total_amount")
+    private int totalAmount;
 
-    @OneToMany(mappedBy = "id",fetch = FetchType.EAGER)
-    private List<VehicleList> vehicles;
+    @ManyToOne
+    @JoinColumn(name = "truck_provider_id")
+    private User driver;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "vehicle_id")
+    private VehicleList vehicleList;
+
+    @Column(name = "decline_reason")
+    private String declineReason;
+
+    @Column(name = "is_tp_approved")
+    private Boolean isTPApproved;
+
+    @Column(name = "is_cust_approved")
+    private Boolean isCustApproved;
+
+    @Column(name = "booking_date")
+    private Date bookingDate;
+
 }

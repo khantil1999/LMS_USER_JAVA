@@ -25,7 +25,8 @@ public class SecurityConfig  {
                                 "/vehicles",
                                 "/register", "/register/save", "/verify", "/forgotPassword", "/resetPassword")
                         .permitAll()
-                        .requestMatchers("/index","/truck/details","/vehicle","/changePassword").authenticated() // Require authentication for the home page
+                        .requestMatchers("/index","/truck/details","/vehicle","/changePassword",
+                                "/currentBooking","booking","/bookings").authenticated() // Require authentication for the home page
                         .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form
