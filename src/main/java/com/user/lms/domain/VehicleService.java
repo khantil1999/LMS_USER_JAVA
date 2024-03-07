@@ -29,7 +29,6 @@ public class VehicleService {
             VehicleDetailsModel vehicleDetailsModel = this.mapVehicle(vehicle);
             detailsModels.add(vehicleDetailsModel);
         });
-
         return detailsModels;
     }
 

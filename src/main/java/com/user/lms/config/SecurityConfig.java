@@ -20,12 +20,12 @@ public class SecurityConfig  {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.userDetailsService(userDetailsService)
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/", "/index", "/about", "/service", "/css/**",
+                        .requestMatchers("/", "home", "/about", "/service", "/css/**",
                                 "/js/**", "/img/**", "/scss/**", "/lib/**", "/contact",
                                 "/vehicles",
                                 "/register", "/register/save", "/verify", "/forgotPassword", "/resetPassword")
                         .permitAll()
-                        .requestMatchers("/home","/truck/details","/vehicle").authenticated() // Require authentication for the home page
+                        .requestMatchers("/index","/truck/details","/vehicle","/changePassword").authenticated() // Require authentication for the home page
                         .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form
