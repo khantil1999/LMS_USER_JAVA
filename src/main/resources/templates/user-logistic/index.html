@@ -30,6 +30,40 @@
 
     <!-- Template Stylesheet -->
     <link href="/css/style.css" rel="stylesheet">
+    <style>
+        .input-field {
+            position: relative;
+            z-index: 1;
+        }
+
+        .suggestions {
+            position: absolute;
+            width: 100%;
+            max-width: calc(100% - 1056px);
+            max-height: 200px;
+            overflow-y: auto;
+            overflow-x: hidden; /* Hide horizontal scrollbar */
+            background-color: #fff;
+            border: 1px solid #ced4da;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            z-index: 1000;
+        }
+
+        .suggestion {
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+
+        .suggestion:hover {
+            background-color: #f8f9fa;
+        }
+
+        #searchBtn {
+            /*margin-top: 8px;*/
+        }
+
+    </style>
 </head>
 
 <body>
@@ -53,6 +87,7 @@
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <div class="navbar-nav ms-auto p-4 p-lg-0">
                 <a th:href="@{/index}" class="nav-item nav-link active">Home</a>
+                <a th:href="@{/myBooking}" class="nav-item nav-link">My Booking</a>
                 <a th:href="@{/about}" class="nav-item nav-link">About</a>
                 <a th:href="@{/service}" class="nav-item nav-link">Services</a>
                
@@ -79,6 +114,25 @@
             </div>
         </div>
     </div>
+    <div class="container" id="mainContainer">
+
+        <div class="row flex-row justify-content-center mb-4">
+            <div class="col-lg-4">
+                <input id="originInput" class="form-control input-field" type="text" placeholder="Enter origin location">
+                <input id="originPostalCode" type="hidden">
+                <div id="originSuggestions" class="suggestions"></div>
+            </div>
+            <div class="col-lg-4">
+                <input id="destinationInput" class="form-control input-field" type="text" placeholder="Enter destination location">
+                <input id="destinationPostalCode" type="hidden">
+                <div id="destinationSuggestions" class="suggestions"></div>
+            </div>
+            <div class="col-lg-2">
+                <button onclick="onSearch()" id="searchBtn" class="btn btn-primary btn-block">Search</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Service Start -->
     <div class="container-xxl py-5">
         <div class="container py-5">
@@ -88,16 +142,7 @@
                 <h1 class="mb-5">Explore Our Vehicles</h1>
             </div>
             <div class="row g-4"  id="vehicleContainer">
-<!--                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">-->
-<!--                    <div class="service-item p-4">-->
-<!--                        <div class="overflow-hidden mb-4">-->
-<!--                            <img class="img-fluid" src="/img/houseshifting1.jpg" alt="">-->
-<!--                        </div>-->
-<!--                        <h4 class="mb-3">House Shifting service</h4>-->
-<!--                       &lt;!&ndash; <p>Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam lorem diam.</p>&ndash;&gt;-->
-<!--                        <a class="btn-slide mt-2" href=""><i class="fa fa-arrow-right"></i><span>Read More</span></a>-->
-<!--                    </div>-->
-<!--                </div>-->
+
             </div>
         </div>
     </div>
@@ -120,24 +165,36 @@
     <script src="/lib/counterup/counterup.min.js"></script>
     <script src="/lib/owlcarousel/owl.carousel.min.js"></script>
 
+
     <!-- Template Javascript -->
     <script src="/js/main.js"></script>
     <script th:inline="javascript">
-
         $(document).ready(function() {
-           getVehicles();
+            getVehicles();
+            // Add event listeners to input fields to trigger validation
+            document.getElementById('bookingDateTime').addEventListener('input', validateBookingDateTime);
+            document.getElementById('goodsType').addEventListener('change', validateGoodsType);
+            document.getElementById('labourCount').addEventListener('input', validateLabourCount);
+            document.getElementById('agreementCheckbox').addEventListener('change', validateAgreement);
         });
+
         function redirectToDetailsPage(id){
             window.location.href = "/truck/details?id="+id
         }
-        function getVehicles() {
+        function getVehicles(startDestination = "",endDestination = "") {
             $.ajax({
-                url: '/vehicles', // Replace 'your-api-endpoint' with your actual API endpoint
+                url: '/searchTP', // Replace 'your-api-endpoint' with your actual API endpoint
                 type: 'GET',
+                data: {
+                    endDestination,
+                    startDestination
+                },
                 success: function(response) {
                     // Handle successful response
+                    $('#vehicleContainer').empty();
                     console.log('Response:', response);
                     $.each(response, function(index, vehicle) {
+                        console.log(vehicle)
                         var photoUrl = vehicle.photo[0].photoUrl; // Assuming there is only one photo for each vehicle
 
                         var vehicleItem = '<div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">' +
@@ -150,7 +207,7 @@
                             '<p><strong>Fuel Type:</strong> ' + vehicle.fuelType + '</p>' +
                             '<div class="d-flex justify-content-between">' +
                             '<button class="btn btn-primary btn-slide mt-2 mr-2" onclick="redirectToDetailsPage(' + vehicle.id + ')"><span>View Details</span> <i class="fa fa-eye"></i></button>' +
-                            '<button class="btn btn-primary btn-slide mt-2"><span>Book</span> <i class="fa fa-book"></i></button>' +
+                            '<button  onclick="onBook(' + vehicle.id + ')" class="btn btn-primary btn-slide mt-2"><span>Book</span> <i class="fa fa-book"></i></button>' +
                             '</div>' +
                             '</div>' +
                             '</div>';
@@ -166,6 +223,380 @@
             });
         }
     </script>
+    <script th:inline="javascript">
+        let destinationAddress = "";
+        let originAddress = ""
+        let km = 0;
+        $(document).ready(function() {
+            // Autocomplete for origin input
+            $("#originInput").on("input", function() {
+                var query = $(this).val();
+                handleSuggestions($(this), $("#originSuggestions"), query, $("#originPostalCode"), true);
+            });
+
+            // Autocomplete for destination input
+            $("#destinationInput").on("input", function() {
+                var query = $(this).val();
+                handleSuggestions($(this), $("#destinationSuggestions"), query, $("#destinationPostalCode"), false);
+            });
+        });
+        function handleSuggestions(inputElement, suggestionsElement, query, postalCodeElement, isOrigin) {
+            $.ajax({
+                url: "https://autocomplete.search.hereapi.com/v1/autocomplete",
+                data: {
+                    q: query,
+                    in: "countryCode:IND",
+                    apiKey: "t-Vw90F8xkVmN6pi3_1VN_2o0X9IqKJQ3nTHb9EFRbc"
+                },
+                success: function(response) {
+                    // Clear previous suggestions
+                    suggestionsElement.empty();
+
+                    // Populate suggestions
+                    response.items.forEach(function(item) {
+                        console.log(item,"item")
+                        if(item && item.address && item.address.label && item.address.postalCode){
+                            var suggestionLabel = item.address.label + ", " + item.address.postalCode;
+                            suggestionsElement.append("<div class='suggestion'>" + suggestionLabel + "</div>");
+                        }
+
+                    });
+
+                    // Show suggestions
+                    suggestionsElement.show();
+
+                    $(".suggestion").click(function() {
+                        var selectedValue = $(this).text();
+                        console.log("sss", $(this).data)
+                        var postalCode = $(this).data("postal-code");
+                        // Update the appropriate input and postal code fields
+                        if (isOrigin) {
+                            $("#originInput").val(selectedValue);
+                            $("#originPostalCode").val(postalCode);
+                        } else {
+                            $("#destinationInput").val(selectedValue);
+                            $("#destinationPostalCode").val(postalCode);
+                        }
+
+                        suggestionsElement.hide();
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error:", error);
+                }
+            });
+        }
+
+        function onSearch(){
+            var origin = $("#originInput").val();
+            var destination = $("#destinationInput").val();
+            var destinationPostCode = $("#destinationPostalCode").val();
+            var originPostalCode= $("#originPostalCode").val();
+
+            // Log the values (you can replace this with your desired action)
+            console.log("Origin:", origin,originPostalCode);
+            console.log("Destination:", destination,destinationPostCode);
+            console.log(getCoordinates(origin,destination))
+        }
+
+        function calculateDistance(origin, destination) {
+            // Prepare request data
+            var requestData = {
+                origin: origin.lat + "," + origin.lng,
+                transportMode: "truck",
+                return: 'summary',
+                destination: destination.lat + "," + destination.lng,
+                apikey: "t-Vw90F8xkVmN6pi3_1VN_2o0X9IqKJQ3nTHb9EFRbc"
+            };
+
+            // Make AJAX request to calculate distance
+            $.ajax({
+                url: "https://router.hereapi.com/v8/routes",
+                method: "GET",
+                data: requestData,
+                success: function(response) {
+                    let distance = response.routes[0].sections[0].summary.length; // Distance in meters
+                    let distanceInKm = (distance / 1000).toFixed(2); // Convert distance to kilometers
+                    km = distanceInKm;
+                    console.log("Distance:", distanceInKm, "kilometers");
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error:", error);
+                }
+            });
+        }
+        // calculateDistance(origin, destination);
+
+        function getCoordinates(origin, destination) {
+            // Perform geocoding for origin
+            $.ajax({
+                url: "https://geocode.search.hereapi.com/v1/geocode",
+                method: "GET",
+                data: {
+                    q: origin,
+                    apiKey: "t-Vw90F8xkVmN6pi3_1VN_2o0X9IqKJQ3nTHb9EFRbc"
+                },
+                success: function(originResponse) {
+                    // Extract coordinates for origin
+                    originAddress =originResponse.items[0].address;
+
+                    var originCoordinates = originResponse.items[0].position;
+                    console.log("Origin Coordinates:", originCoordinates);
+
+                    // Perform geocoding for destination
+                    $.ajax({
+                        url: "https://geocode.search.hereapi.com/v1/geocode",
+                        method: "GET",
+                        data: {
+                            q: destination,
+                            apiKey: "t-Vw90F8xkVmN6pi3_1VN_2o0X9IqKJQ3nTHb9EFRbc"
+                        },
+                        success: function(destinationResponse) {
+                            // Extract coordinates for destination
+                            destinationAddress =destinationResponse.items[0].address;
+                            var destinationCoordinates = destinationResponse.items[0].position;
+                            console.log("Destination Coordinates:", destinationCoordinates);
+                            searchTP();
+                            // Calculate distance using HERE Routing API
+                            calculateDistance(originCoordinates, destinationCoordinates);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Error:", error);
+                        }
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error:", error);
+                }
+            });
+        }
+
+        function searchTP(){
+            console.log(destinationAddress,originAddress)
+            getVehicles(originAddress.postalCode,destinationAddress.postalCode)
+        }
+
+        function onBook(vehicleId){
+
+            var origin = $("#originInput").val().trim();
+            var destination = $("#destinationInput").val().trim();
+            if (origin === "" || destination === "") {
+                // Show Bootstrap modal popup
+                $('#validationModal').modal('show');
+            } else {
+                $("#bookingVehicleId").val(vehicleId)
+
+                $('#startDestination').val(origin)
+                $('#endDestination').val(destination)
+                $('#bookingModal').modal('show');
+            }
+        }
+
+        function closeModel(id){
+            console.log("sss",id)
+            $('#'+id).modal('hide');
+        }
+        function toggleLabourField() {
+            var labourRequiredCheckbox = document.getElementById('labourRequired');
+            var labourField = document.getElementById('labourField');
+
+            if (labourRequiredCheckbox.checked) {
+                labourField.style.display = 'block';
+            } else {
+                labourField.style.display = 'none';
+                document.getElementById('labourCount').value = ''; // Clear labour count field
+            }
+        }
+
+        function validateBookingDateTime() {
+            var bookingDateTime = document.getElementById('bookingDateTime').value;
+            var currentDate = new Date();
+
+            // Clear previous error message
+            document.getElementById('bookingDateTimeError').textContent = '';
+
+            if (!bookingDateTime) {
+                document.getElementById('bookingDateTimeError').textContent = 'Please select a booking date & time.';
+            } else {
+                var selectedDate = new Date(bookingDateTime);
+                if (selectedDate < currentDate) {
+                    document.getElementById('bookingDateTimeError').textContent = 'Booking date & time cannot be in the past.';
+                }
+            }
+        }
+
+        function validateGoodsType() {
+            var goodsType = document.getElementById('goodsType').value;
+
+            // Clear previous error message
+            document.getElementById('goodsTypeError').textContent = '';
+
+            if (!goodsType) {
+                document.getElementById('goodsTypeError').textContent = 'Please select a goods type.';
+            }
+        }
+
+        function validateLabourCount() {
+            var labourRequiredCheckbox = document.getElementById('labourRequired');
+            var labourCount = document.getElementById('labourCount').value;
+
+            // Clear previous error message
+            document.getElementById('labourCountError').textContent = '';
+
+            if (labourRequiredCheckbox.checked && (labourCount === '' || isNaN(labourCount) || parseInt(labourCount) <= 0)) {
+                document.getElementById('labourCountError').textContent = 'Please enter a valid labour count.';
+            }
+        }
+
+        function validateAgreement() {
+            var agreementCheckbox = document.getElementById('agreementCheckbox');
+
+            // Clear previous error message
+            document.getElementById('agreementCheckboxError').textContent = '';
+
+            if (!agreementCheckbox.checked) {
+                document.getElementById('agreementCheckboxError').textContent = 'Please agree to the terms and conditions.';
+            }
+        }
+
+
+
+        function bookService() {
+            validateBookingDateTime();
+            validateGoodsType();
+            validateLabourCount();
+            validateAgreement();
+
+            var bookingDateTimeError = document.getElementById('bookingDateTimeError').textContent;
+            var goodsTypeError = document.getElementById('goodsTypeError').textContent;
+            var labourCountError = document.getElementById('labourCountError').textContent;
+            var agreementCheckboxError = document.getElementById('agreementCheckboxError').textContent;
+
+            if (!bookingDateTimeError && !goodsTypeError && !labourCountError && !agreementCheckboxError) {
+               this.bookServiceApi();
+            }
+        }
+
+        function bookServiceApi() {
+            // Collect input data
+            let vehicleId =    $("#bookingVehicleId").val();
+            // var startDestination = document.getElementById("startDestination").value;
+            // var endDestination = document.getElementById("endDestination").value;
+            var bookingDateTime = document.getElementById("bookingDateTime").value;
+            var goodsType = document.getElementById("goodsType").value;
+            var labourCount = document.getElementById("labourCount").value;
+
+            // Send AJAX request to save booking details
+            $.ajax({
+                url: "/saveBooking",
+                method: "POST",
+                contentType: 'application/json',
+
+                data: JSON.stringify({
+                    vehicleId,
+                    startDestination:JSON.stringify(originAddress),
+                    endDestination:JSON.stringify(destinationAddress),
+                    bookingDate: bookingDateTime,
+                    goodsType: goodsType,
+                    km: Math.ceil(km),
+                    noOfLabourers: labourCount || 0,
+                }),
+                success: function(response) {
+                    closeModel('bookingModal');
+                    displaySuccessToaster();
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error saving booking details:", error);
+                }
+            });
+        }
+
+        function displaySuccessToaster(){
+            $("#mainContainer").prepend('<div id="bookingSuccessAlert" class="alert alert-success alert-dismissible fade show" role="alert">Booking placed successfully! We will let you know once it\'s approved.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+
+            setTimeout(function() {
+                $("#bookingSuccessAlert").alert('dispose').remove();
+            }, 2000);
+        }
+    </script>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="validationModal" tabindex="-1" role="dialog" aria-labelledby="validationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="validationModalLabel">Error</h5>
+                    <button onclick="closeModel('validationModal')" type="button" class="close btn btn-danger" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Please select both start and end destinations.</p>
+                </div>
+                <div class="modal-footer">
+                    <button onclick="closeModel('validationModal')" type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div class="modal fade" id="bookingModal" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bookingModalLabel">Book Service</h5>
+                    <button onclick="closeModel('bookingModal')" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" value="" id="bookingVehicleId"/>
+                    <div class="form-group  mt-2">
+                        <label for="startDestination">Start Destination</label>
+                        <input type="text" class="form-control" id="startDestination" readonly>
+                    </div>
+                    <div class="form-group  mt-2">
+                        <label for="endDestination">End Destination</label>
+                        <input type="text" class="form-control" id="endDestination" readonly>
+                    </div>
+                    <div class="form-group  mt-2">
+                        <label for="bookingDateTime">Booking Date & Time</label>
+                        <input type="datetime-local" class="form-control" id="bookingDateTime">
+                        <small id="bookingDateTimeError" class="text-danger"></small>
+                    </div>
+                    <div class="form-group  mt-2">
+                        <label for="goodsType">Goods Type</label>
+                        <select class="form-select" id="goodsType">
+                            <option value="">Select Goods Type</option>
+                            <option value="House">House</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <small id="goodsTypeError" class="text-danger"></small>
+                    </div>
+                    <div class="form-check mt-2">
+                        <input type="checkbox" class="form-check-input" id="labourRequired" onchange="toggleLabourField()">
+                        <label class="form-check-label" for="labourRequired">Labour Required</label>
+                    </div>
+                    <div class="form-group" id="labourField" style="display: none;">
+                        <label for="labourCount">Labour Count</label>
+                        <input type="number" class="form-control" id="labourCount">
+                        <small id="labourCountError" class="text-danger"></small>
+                    </div>
+                    <div class="form-group mt-2">
+                        <input type="checkbox" id="agreementCheckbox"> <label for="agreementCheckbox">I agree to the <a href="/termsCondition" target="_blank" id="policyLink">terms and conditions</a></label>
+                        <small id="agreementCheckboxError" class="text-danger"></small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button onclick="closeModel('bookingModal')" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="bookService()">Book Service</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 </body>
 
 </html>

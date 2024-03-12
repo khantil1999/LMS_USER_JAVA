@@ -26,4 +26,19 @@ public class HomeController {
         return "contact";
     }
 
+    @GetMapping("/termsCondition")
+    public String loadTermsAndConditionPage(){
+        return "termsCondition";
+    }
+
+    @GetMapping("/myBooking")
+    public String loadMyBookingPage(){
+        return "myBooking";
+    }
+
+    @GetMapping("/bookingDetails")
+    public String loadBookingDetailsPage(){
+        return "bookingDetails";
+    }
+
 }
