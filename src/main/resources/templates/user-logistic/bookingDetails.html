@@ -99,7 +99,6 @@
                     <div class="header-wrapper">
                         <h2 class="mt-4">Booking Details</h2>
                         <div class="btn-group">
-                            <button  class="btn btn-success confirmBookingBtn d-none">Confirm Booking</button>
                             <button id="backBtn" class="btn btn-primary">Back</button>
                         </div>
                     </div>
@@ -352,7 +351,6 @@
         const imageRef = storageRef.child(fileName );
 
 
-        // Upload file to Firebase Storage
         imageRef.put(file).then(() => {
 
             uploadPaymentConfirmInDb(fileName);
@@ -362,7 +360,6 @@
     }
 
     function uploadPaymentConfirmInDb(path) {
-        // Make AJAX request
         $.ajax({
             url: '/confirmBooking',
             type: 'POST',
@@ -372,11 +369,10 @@
                 paymentConfirmImagePath: path
             }),
             success: function(data) {
-                alert('QR code uploaded successfully:');
+                window.location.reload();
             },
             error: function(xhr, status, error) {
                 console.error('Error uploading QR code:', error);
-                // Handle error, if needed
             }
         });
     }

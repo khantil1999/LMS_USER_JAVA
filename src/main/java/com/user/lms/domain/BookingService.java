@@ -1,6 +1,7 @@
 package com.user.lms.domain;
 
 import com.user.lms.entity.Booking;
+import com.user.lms.entity.BookingStatus;
 import com.user.lms.entity.User;
 import com.user.lms.entity.VehicleList;
 import com.user.lms.models.BookingModel;
@@ -9,9 +10,16 @@ import com.user.lms.models.ConfirmBookingModel;
 import com.user.lms.repository.BookingRepository;
 import com.user.lms.repository.UserRepository;
 import com.user.lms.repository.VehicleListRepository;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.security.Principal;
 import java.util.List;
@@ -29,6 +37,15 @@ public class BookingService {
     @Autowired
     private BookingRepository bookingRepository;
 
+    @Autowired
+    private JavaMailSender javaMailSender;
+
+    @Autowired
+    private TemplateEngine templateEngine;
+
+
+
+
     public String saveBooking(BookingSaveModel bookingSaveModel, Principal principal) {
         User customer = this.userRepository.findExistingUser(principal.getName());
         VehicleList vehicle = this.vehicleListRepository.getReferenceById(bookingSaveModel.getVehicleId());
@@ -42,6 +59,7 @@ public class BookingService {
             booking.setDriver(vehicle.getDriver());
             booking.setVehicleList(vehicle);
             booking.setUser(customer);
+            booking.setStatus(BookingStatus.PROVIDER_PENDING);
 
             this.bookingRepository.save(booking);
 
@@ -64,10 +82,35 @@ public class BookingService {
     public String confirmBooking(ConfirmBookingModel confirmBookingModel) {
         Booking booking = this.bookingRepository.getReferenceById((confirmBookingModel.getBookingId()));
         if (booking != null) {
-            booking.setIsPartialPaymentReceived(true);
+            booking.setIsCustApproved(true);
+            booking.setStatus(BookingStatus.PARTIAL_PAYMENT_SEND_BY_CUSTOMER);
             booking.setBookingConfirmPaymentImagePath(confirmBookingModel.getPaymentConfirmImagePath());
-            this.bookingRepository.save(booking);
+            booking= this.bookingRepository.saveAndFlush(booking);
+            this.sendBookingConfirmEmailToTruckProvider(booking);
         }
         return "Done";
+    }
+
+
+
+
+    public void sendBookingConfirmEmailToTruckProvider(Booking booking){
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+            Context context = new Context();
+            BookingModel bookingModel = BookingModel.fromEntity(booking);
+            context.setVariable("booking", bookingModel);
+
+
+            String htmlContent = templateEngine.process("payment-email-template", context);
+
+            helper.setTo(bookingModel.getTruckProvider().getEmail());
+            helper.setSubject("Booking Confirmation From Customer");
+            helper.setText(htmlContent, true);
+            javaMailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+
+        }
     }
 }
