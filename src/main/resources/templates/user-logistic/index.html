@@ -62,7 +62,15 @@
         #searchBtn {
             /*margin-top: 8px;*/
         }
-
+         .logo{
+             height: 100%;
+             min-width: 200px;
+         }
+        .user-image {
+            width: 40px; /* Adjust the width as needed */
+            height: auto; /* Maintain aspect ratio */
+            object-fit: cover; /* Ensure the image covers the entire space */
+        }
     </style>
 </head>
 
@@ -78,8 +86,8 @@
 
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg bg-white navbar-light shadow border-top border-5 border-primary sticky-top p-0">
-        <a th:href="@{/index}" class="navbar-brand bg-primary d-flex align-items-center px-4 px-lg-5">
-            <h2 class="mb-2 text-white">Logistic Management System</h2>
+        <a th:href="@{/index}" class="navbar-brand d-flex align-items-center">
+            <img src="img/logo.png" alt="LMS" class="logo">
         </a>
         <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="navbar-toggler-icon"></span>
@@ -90,9 +98,16 @@
                 <a th:href="@{/myBooking}" class="nav-item nav-link">My Booking</a>
                 <a th:href="@{/about}" class="nav-item nav-link">About</a>
                 <a th:href="@{/service}" class="nav-item nav-link">Services</a>
-               
-                <a th:href="@{/contact}" class="nav-item nav-link">Contact</a>
-                <a th:href="@{/logout}" class="nav-item nav-link">Logout</a>
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="/img/images.png" alt="User Image"  class="user-image">
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" style="min-width: 200px;">
+                        <li><a class="dropdown-item" th:href="@{/manageProfile}">Manage Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" th:href="@{/logout}">Logout</a></li>
+                    </ul>
+                </div>
             </div>
             <!--<h4 class="m-0 pe-lg-5 d-none d-lg-block"><i class="fa fa-headphones text-primary me-3"></i>+012 345 6789</h4>-->
         </div>

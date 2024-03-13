@@ -21,14 +21,14 @@ public class SecurityConfig  {
         http.userDetailsService(userDetailsService)
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/", "/index", "/about", "/service", "/css/**",
-                                "/js/**", "/img/**", "/scss/**", "/lib/**", "/contact",
+                                "/js/**", "/img/**", "/scss/**", "/lib/**",
                                 "/vehicles","/termsCondition","/myBooking",
                                 "/searchTP","/confirmBooking",
                                 "/register", "/register/save", "/verify", "/forgotPassword", "/resetPassword")
                         .permitAll()
-                        .requestMatchers("/home",
+                        .requestMatchers("/index",
                                 "/bookings","/bookingDetails","/booking",
-                                "/truck/details","/vehicle").authenticated() // Require authentication for the home page
+                                "/truck/details","/vehicle","/manageProfile").authenticated() // Require authentication for the home page
                         .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form

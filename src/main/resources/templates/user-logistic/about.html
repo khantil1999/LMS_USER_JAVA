@@ -30,6 +30,17 @@ xmlns:th="http://www.thymeleaf.org">
 
     <!-- Template Stylesheet -->
     <link href="/css/style.css" rel="stylesheet">
+    <style>
+        .logo{
+            height: 100%;
+            min-width: 200px;
+        }
+        .user-image {
+            width: 40px; /* Adjust the width as needed */
+            height: auto; /* Maintain aspect ratio */
+            object-fit: cover; /* Ensure the image covers the entire space */
+        }
+    </style>
 </head>
 
 <body>
@@ -44,8 +55,8 @@ xmlns:th="http://www.thymeleaf.org">
 
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg bg-white navbar-light shadow border-top border-5 border-primary sticky-top p-0">
-        <a th:href="@{/index}" class="navbar-brand bg-primary d-flex align-items-center px-4 px-lg-5">
-            <h2 class="mb-2 text-white">Logistic Management System</h2>
+        <a th:href="@{/index}" class="navbar-brand d-flex align-items-center">
+            <img src="img/logo.png" alt="LMS" class="logo">
         </a>
         <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="navbar-toggler-icon"></span>
@@ -53,11 +64,19 @@ xmlns:th="http://www.thymeleaf.org">
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <div class="navbar-nav ms-auto p-4 p-lg-0">
                 <a th:href="@{/index}" class="nav-item nav-link active">Home</a>
+                <a th:href="@{/myBooking}" class="nav-item nav-link">My Booking</a>
                 <a th:href="@{/about}" class="nav-item nav-link">About</a>
                 <a th:href="@{/service}" class="nav-item nav-link">Services</a>
-
-                <a th:href="@{/contact}" class="nav-item nav-link">Contact</a>
-                <a th:href="@{/login}" class="nav-item nav-link">Login</a>
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="/img/images.png" alt="User Image"  class="user-image">
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" style="min-width: 200px;">
+                        <li><a class="dropdown-item" th:href="@{/manageProfile}">Manage Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" th:href="@{/logout}">Logout</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </nav>
@@ -89,24 +108,24 @@ xmlns:th="http://www.thymeleaf.org">
                         <img class="position-absolute img-fluid w-100 h-100" src="/img/about.jpg" style="object-fit: cover;" alt="">
                     </div>
                 </div>
-                <div class="col-lg-6 about-text wow fadeInUp" data-wow-delay="0.3s">
-                    <h6 class="text-secondary text-uppercase mb-3">About Us</h6>
-                    <h1 class="mb-5">Quick Transport and Logistics Solutions</h1>
-                    <p class="mb-5">Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu diam amet diam et eos. Clita erat ipsum et lorem et sit, sed stet lorem sit clita duo justo magna dolore erat amet</p>
-                    <div class="row g-4 mb-5">
-                        <div class="col-sm-6 wow fadeIn" data-wow-delay="0.5s">
-                            <i class="fa fa-globe fa-3x text-primary mb-3"></i>
-                            <h5>Global Coverage</h5>
-                            <p class="m-0">Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam lorem diam justo.</p>
-                        </div>
-                        <div class="col-sm-6 wow fadeIn" data-wow-delay="0.7s">
-                            <i class="fa fa-shipping-fast fa-3x text-primary mb-3"></i>
-                            <h5>On Time Delivery</h5>
-                            <p class="m-0">Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam lorem diam justo.</p>
-                        </div>
-                    </div>
-                    <a href="" class="btn btn-primary py-3 px-5">Explore More</a>
-                </div>
+<!--                <div class="col-lg-6 about-text wow fadeInUp" data-wow-delay="0.3s">-->
+<!--                    <h6 class="text-secondary text-uppercase mb-3">About Us</h6>-->
+<!--                    <h1 class="mb-5">Quick Transport and Logistics Solutions</h1>-->
+<!--                    <p class="mb-5">Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu diam amet diam et eos. Clita erat ipsum et lorem et sit, sed stet lorem sit clita duo justo magna dolore erat amet</p>-->
+<!--                    <div class="row g-4 mb-5">-->
+<!--                        <div class="col-sm-6 wow fadeIn" data-wow-delay="0.5s">-->
+<!--                            <i class="fa fa-globe fa-3x text-primary mb-3"></i>-->
+<!--                            <h5>Global Coverage</h5>-->
+<!--                            <p class="m-0">Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam lorem diam justo.</p>-->
+<!--                        </div>-->
+<!--                        <div class="col-sm-6 wow fadeIn" data-wow-delay="0.7s">-->
+<!--                            <i class="fa fa-shipping-fast fa-3x text-primary mb-3"></i>-->
+<!--                            <h5>On Time Delivery</h5>-->
+<!--                            <p class="m-0">Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam lorem diam justo.</p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <a href="" class="btn btn-primary py-3 px-5">Explore More</a>-->
+<!--                </div>-->
             </div>
         </div>
     </div>
