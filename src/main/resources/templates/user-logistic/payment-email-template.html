@@ -56,10 +56,10 @@
 
 <!-- Customer Details -->
 <section>
-    <h3>Provider Details:</h3>
-    <p>Customer Name: <span th:text="${booking.truckProvider.firstName} + ' ' + ${booking.truckProvider.lastName}"></span></p>
-    <p>Email: <span th:text="${booking.truckProvider.email}"></span></p>
-    <p>Phone: <span th:text="${booking.truckProvider.mobileNo}"></span></p>
+    <h3>Customer Details:</h3>
+    <p>Customer Name: <span th:text="${booking.user.firstName} + ' ' + ${booking.user.lastName}"></span></p>
+    <p>Email: <span th:text="${booking.user.email}"></span></p>
+    <p>Phone: <span th:text="${booking.user.mobileNo}"></span></p>
 </section>
 
 </body>
