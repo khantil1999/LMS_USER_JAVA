@@ -36,7 +36,7 @@
             min-width: 200px;
         }
         .user-image {
-            width: 40px; /* Adjust the width as needed */
+            width: 22px; /* Adjust the width as needed */
             height: auto; /* Maintain aspect ratio */
             object-fit: cover; /* Ensure the image covers the entire space */
         }
@@ -67,8 +67,7 @@
             <a th:href="@{/myBooking}" class="nav-item nav-link">My Booking</a>
             <a th:href="@{/about}" class="nav-item nav-link">About</a>
             <a th:href="@{/service}" class="nav-item nav-link">Services</a>
-            <div class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <a class="nav-link nav-item dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <img src="/img/images.png" alt="User Image"  class="user-image">
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" style="min-width: 200px;">
@@ -76,7 +75,6 @@
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" th:href="@{/logout}">Logout</a></li>
                 </ul>
-            </div>
         </div>
         <!--<h4 class="m-0 pe-lg-5 d-none d-lg-block"><i class="fa fa-headphones text-primary me-3"></i>+012 345 6789</h4>-->
     </div>
