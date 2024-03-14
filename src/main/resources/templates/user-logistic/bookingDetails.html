@@ -288,8 +288,17 @@
         $('#labourerCharge').text(bookingData.labourerCharge);
         $('#totalAmount').text(bookingData.totalAmount);
 
-        // Bind status
-        let status = bookingData.isTPApproved === true ? "Approved by Truck Provider" : (bookingData.isTPApproved === false ? "Pending from Provider" : "Not Approved");
+        let status =bookingData.status;
+        switch (bookingData.status) {
+            case 'Provider Pending':
+                status = "Pending To Approve From Provider"
+                break;
+            case 'Customer Pending':
+                status = "Pending To Approve From You"
+                break;
+            default:
+                break;
+        }
         $('#bookingStatus').text(status);
 
         // Show/hide buttons based on status

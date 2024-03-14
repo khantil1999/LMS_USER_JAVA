@@ -39,10 +39,12 @@
             overflow: hidden; /* Hide overflowing content */
             text-overflow: ellipsis; /* Display ellipsis (...) for truncated content */
         }
-        .logo{
+
+        .logo {
             height: 100%;
             min-width: 200px;
         }
+
         .user-image {
             width: 40px; /* Adjust the width as needed */
             height: auto; /* Maintain aspect ratio */
@@ -69,12 +71,15 @@
             <a th:href="@{/about}" class="nav-item nav-link">About</a>
             <a th:href="@{/service}" class="nav-item nav-link">Services</a>
             <div class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="/img/images.png" alt="User Image"  class="user-image">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                   aria-expanded="false">
+                    <img src="/img/images.png" alt="User Image" class="user-image">
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" style="min-width: 200px;">
                     <li><a class="dropdown-item" th:href="@{/manageProfile}">Manage Profile</a></li>
-                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
                     <li><a class="dropdown-item" th:href="@{/logout}">Logout</a></li>
                 </ul>
             </div>
@@ -109,14 +114,41 @@
     </div>
 </div>
 
-
+<div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="cancelModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelModalLabel">Cancel Booking</h5>
+                <button onclick="closeModel('cancelModal')" type="button" class="close btn btn-danger"
+                        data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="cancelMessage">.</p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModel('cancelModal')" type="button" class="btn btn-danger" data-dismiss="modal">
+                    Close
+                </button>
+                <button onclick="cancelBooking()" type="button" class="btn btn-success" data-dismiss="modal">Cancel Booking</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Back to Top -->
 <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-0 back-to-top"><i class="bi bi-arrow-up"></i></a>
 
 
 <!-- JavaScript Libraries -->
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
+
+<!-- DataTables JS -->
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
 <script src="/lib/wow/wow.min.js"></script>
 <script src="/lib/easing/easing.min.js"></script>
 <script src="/lib/waypoints/waypoints.min.js"></script>
@@ -128,7 +160,8 @@
 <script src="/js/main.js"></script>
 
 <script th:inline="javascript">
-
+    let bookings = []
+    let cancelBookingDetails = {}
     $(document).ready(function () {
         loadMyBookings();
     })
@@ -138,6 +171,7 @@
             url: "/bookings",
             method: "GET",
             success: function (response) {
+                bookings = response;
                 populateBookingTable(response);
             },
             error: function (xhr, status, error) {
@@ -146,15 +180,45 @@
         });
     }
 
+    function closeModel(id) {
+        $('#' + id).modal('hide');
+    }
+
     function populateBookingTable(bookings) {
         let tableBody = $('#bookingTableBody');
 
         tableBody.empty(); // Clear existing table rows
-        bookings.forEach(function(booking, index) {
-            let startAddress =  JSON.parse(booking.startDestination).label;
+        bookings.forEach(function (booking, index) {
+            let startAddress = JSON.parse(booking.startDestination).label;
             let endAddress = JSON.parse(booking.endDestination).label;
-            let status = booking.isTPApproved ? "Approved by Truck Provider" : "Pending from Provider";
-
+            let status = booking.status;
+            switch (booking.status) {
+                case 'Provider Pending':
+                    buttonHTML = '<button class="btn btn-success fa fa-eye" title="View Details" onclick="onViewDetailsClick(' + booking.id + ')"></button>';
+                    buttonHTML += '<button onclick="onCancel(' + booking.id + ')" title="cancel" class="m-lg-1 btn btn-danger fa fa-times"></button>';
+                    status = "Pending To Approve From Provider"
+                    break;
+                case 'Customer Pending':
+                    buttonHTML = '<button class="btn btn-success fa fa-eye" title="View Details" onclick="onViewDetailsClick(' + booking.id + ')"></button>';
+                    buttonHTML += '<button onclick="onCancel(' + booking.id + ')" title="cancel" class="m-lg-1 btn btn-danger fa fa-times"></button>';
+                    status = "Pending To Approve From You"
+                    break;
+                case 'Pending PickUp':
+                    buttonHTML = '<button class="btn btn-success fa fa-eye" title="View Details" onclick="onViewDetailsClick(' + booking.id + ')"></button>';
+                    buttonHTML += '<button onclick="onCancel(' + booking.id + ')" title="cancel" class="m-lg-1 btn btn-danger fa fa-times"></button>';
+                    status = 'Pending Pickup';
+                    break;
+                case 'Completed':
+                    buttonHTML = '<button class="btn btn-success fa fa-eye" title="View Details" onclick="onViewDetailsClick(' + booking.id + ')"></button>';
+                    break;
+                case 'Cancel':
+                    buttonHTML = '<button class="btn btn-success fa fa-eye" title="View Details" onclick="onViewDetailsClick(' + booking.id + ')"></button>';
+                    break;
+                default:
+                    buttonHTML = '<button class="btn btn-success fa fa-eye" title="View Details" onclick="onViewDetailsClick(' + booking.id + ')"></button>';
+                    buttonHTML += '<button onclick="onCancel(' + booking.id + ')" title="cancel" class="m-lg-1 btn btn-danger fa fa-times"></button>';
+                    break;
+            }
             // Format booking date in local timezone
             let bookingDate = new Date(booking.bookingDate);
             let formattedDate = bookingDate.toLocaleDateString('en-US', {
@@ -172,20 +236,24 @@
             let row = '<tr>' +
                 '<td>' + (index + 1) + '</td>' +
                 '<td>' + formattedDateTime + '</td>' +
-                '<td data-toggle="tooltip" title="' + startAddress + '" class="fixed-size-cell">' + truncateDestination(startAddress)+ '</td>' +
-                '<td data-toggle="tooltip" title="' + endAddress + '" class="fixed-size-cell">' +truncateDestination(endAddress) + '</td>' +
+                '<td data-toggle="tooltip" title="' + startAddress + '" class="fixed-size-cell">' + truncateDestination(startAddress) + '</td>' +
+                '<td data-toggle="tooltip" title="' + endAddress + '" class="fixed-size-cell">' + truncateDestination(endAddress) + '</td>' +
                 '<td>' + booking.truckProvider.firstName + ' ' + booking.truckProvider.lastName + '</td>' +
                 '<td>' + status + '</td>' +
-                '<td><button class="btn btn-success" onclick="onViewDetailsClick(' + booking.id + ')">View Details</button>' +
-                '<button class="m-lg-1 btn btn-danger">Cancel</button></td>' +
+                '<td>' + buttonHTML + '</td>' +
                 '</td>' +
                 '</tr>';
             tableBody.append(row);
         });
+
+        $('#bookingTable').DataTable({
+            "paging": true,        // Enable pagination
+            "searching": true,     // Enable search functionality
+            // Add more DataTable options as needed
+        });
         // Initialize tooltips
         $('[data-toggle="tooltip"]').tooltip();
     }
-
 
 
     // Helper function to truncate destination with ellipsis
@@ -194,8 +262,105 @@
         return destination.length > maxLength ? destination.substring(0, maxLength - 3) + '...' : destination;
     }
 
-    function onViewDetailsClick(id){
-        window.location.href = "/bookingDetails?id="+id
+    function onViewDetailsClick(id) {
+        window.location.href = "/bookingDetails?id=" + id
+    }
+
+    function onCancel(id) {
+        let bookingDetails = bookings.find((data) => data.id == id);
+        if (bookingDetails) {
+            let message = "";
+            if (bookingDetails.isTPApproved && bookingDetails.isCustApproved) {
+                let {cancellationFee, refundAmount, totalAmount, policyPer,twentyPercentOfTotal} =
+                    calculateCancellationFee(bookingDetails.bookingDate, bookingDetails.totalAmount)
+                message = `
+Before proceeding, please note that canceling this booking incurs a cancellation fee of ${policyPer}% of the total booking amount(${totalAmount}), which amounts to ${Math.ceil(cancellationFee)}. However, we have already received a 20% advance payment(${Math.ceil(twentyPercentOfTotal)}) at the time of booking. The cancellation fee will be deducted from this advance payment, and the remaining amount(${Math.ceil(refundAmount)}) will be refunded to you within 7 working days. Are you sure you wish to proceed with cancellation?`
+
+                cancelBookingDetails = {
+                    id:bookingDetails.id,
+                    isChargesApplied: true,
+                    refundAmount:Math.ceil(refundAmount),
+                    cancellationFee:Math.ceil(cancellationFee),
+                    cancellationPer:policyPer,
+                    advanceAmount:Math.ceil(twentyPercentOfTotal),
+                }
+            } else {
+                cancelBookingDetails = {
+                    id:bookingDetails.id,
+                    isChargesApplied: false,
+                    refundAmount:0,
+                    cancellationFee:0,
+                    cancellationPer:0,
+                    advanceAmount:0,
+                }
+                message = "Are you sure you want to cancel this booking"
+            }
+            $("#cancelMessage").text(message)
+            $('#cancelModal').modal('show');
+        }
+    }
+
+
+    function calculateCancellationFee(bookingDate, totalAmount) {
+        const cancellationPolicy = {
+            "7_days_or_more": 0,
+            "2_to_6_days": 0.10,
+            "1_day": 0.12,
+            "on_booking_date": 0.20
+        };
+
+        const bookingDateObj = new Date(bookingDate);
+
+        const currentDate = new Date();
+        const differenceInTime = bookingDateObj.getTime() - currentDate.getTime();
+        const differenceInDays = differenceInTime / (1000 * 3600 * 24);
+
+        let cancellationFeePercentage;
+        let policyPer = "20"
+        if (differenceInDays >= 7) {
+            cancellationFeePercentage = cancellationPolicy["7_days_or_more"];
+            policyPer = cancellationPolicy["7_days_or_more"] * 100;
+        } else if (differenceInDays >= 2 && differenceInDays <= 6) {
+            cancellationFeePercentage = cancellationPolicy["2_to_6_days"];
+            policyPer = cancellationPolicy["2_to_6_days"] * 100;
+        } else if (differenceInDays >= 1 && differenceInDays < 2) {
+            policyPer = cancellationPolicy["1_day"] * 100;
+            cancellationFeePercentage = cancellationPolicy["1_day"];
+        } else {
+            policyPer = cancellationPolicy["on_booking_date"] * 100;
+            cancellationFeePercentage = cancellationPolicy["on_booking_date"];
+        }
+
+        const cancellationFee = totalAmount * cancellationFeePercentage;
+
+        const twentyPercentOfTotal = totalAmount * 0.20;
+
+        const refundAmount = twentyPercentOfTotal - cancellationFee;
+
+        return {
+            cancellationFee: cancellationFee,
+            totalAmount: totalAmount,
+            refundAmount: refundAmount,
+            policyPer,
+            twentyPercentOfTotal
+        };
+    }
+
+    function  cancelBooking(){
+        $.ajax({
+            url: '/cancelBooking/'+cancelBookingDetails.id,
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify({
+              ...cancelBookingDetails
+            }),
+            success: function(data) {
+                window.location.reload();
+            },
+            error: function(xhr, status, error) {
+
+            }
+        });
     }
 </script>
 

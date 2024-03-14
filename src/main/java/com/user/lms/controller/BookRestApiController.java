@@ -4,6 +4,7 @@ import com.user.lms.domain.BookingService;
 import com.user.lms.entity.Booking;
 import com.user.lms.models.BookingModel;
 import com.user.lms.models.BookingSaveModel;
+import com.user.lms.models.CancelBookingModel;
 import com.user.lms.models.ConfirmBookingModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -36,5 +37,10 @@ public class BookRestApiController {
     @PostMapping("/confirmBooking")
     String confirmBooking(@RequestBody ConfirmBookingModel confirmBookingModel ){
         return this.bookingService.confirmBooking(confirmBookingModel);
+    }
+
+    @PutMapping("/cancelBooking/{bookingId}")
+    String cancelBooking(@PathVariable(name = "bookingId") String bookingId, @RequestBody CancelBookingModel cancelBookingModel){
+        return this.bookingService.cancelBooking(bookingId,cancelBookingModel);
     }
 }
