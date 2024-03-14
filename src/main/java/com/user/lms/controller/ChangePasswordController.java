@@ -23,9 +23,9 @@ public class ChangePasswordController {
         model.addAttribute("changePassword",new ChangePasswordModel());
         return "changepassword";
     }
-    @PostMapping("/changePassword")
-    public String changePassword(@Valid @ModelAttribute("changePassword") ChangePasswordModel changePasswordModel,
-                                 BindingResult bindingResult, Model model, Principal principal){
-        return  this.changePasswordService.changePassword(changePasswordModel,bindingResult,model,principal);
-    }
+//    @PostMapping("/changePassword")
+//    public String changePassword(@Valid @ModelAttribute("changePassword") ChangePasswordModel changePasswordModel,
+//                                 BindingResult bindingResult, Model model, Principal principal){
+//        return  this.changePasswordService.changePassword(changePasswordModel,bindingResult,model,principal);
+//    }
 }
