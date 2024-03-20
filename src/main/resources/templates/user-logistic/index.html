@@ -71,10 +71,17 @@
             height: auto; /* Maintain aspect ratio */
             object-fit: cover; /* Ensure the image covers the entire space */
         }
+        .cust-image{
+            min-height: 250px !important;
+        }
     </style>
 </head>
 
 <body>
+<script src="https://www.gstatic.com/firebasejs/8.2.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-storage.js"></script>
+<script src="/js/firebase-config.js"></script>
     <!-- Spinner Start -->
     <!--<div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-grow text-primary" style="width: 3rem; height: 3rem;" role="status">
@@ -183,6 +190,7 @@
     <!-- Template Javascript -->
     <script src="/js/main.js"></script>
     <script th:inline="javascript">
+        const storage = firebase.storage();
         $(document).ready(function() {
             getVehicles();
             // Add event listeners to input fields to trigger validation
@@ -195,47 +203,61 @@
         function redirectToDetailsPage(id){
             window.location.href = "/truck/details?id="+id
         }
-        function getVehicles(startDestination = "",endDestination = "") {
-            $.ajax({
-                url: '/searchTP', // Replace 'your-api-endpoint' with your actual API endpoint
-                type: 'GET',
-                data: {
-                    endDestination,
-                    startDestination
-                },
-                success: function(response) {
-                    // Handle successful response
-                    $('#vehicleContainer').empty();
-                    console.log('Response:', response);
-                    $.each(response, function(index, vehicle) {
-                        console.log(vehicle)
-                        var photoUrl = vehicle.photo[0].photoUrl; // Assuming there is only one photo for each vehicle
+        async function getVehicles(startDestination = "", endDestination = "") {
+            try {
+                const response = await $.ajax({
+                    url: '/searchTP', // Replace 'your-api-endpoint' with your actual API endpoint
+                    type: 'GET',
+                    data: {
+                        endDestination,
+                        startDestination
+                    }
+                });
 
-                        var vehicleItem = '<div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">' +
-                            '<div class="service-item p-4">' +
-                            '<div class="overflow-hidden mb-4">' +
-                            '<img class="img-fluid" src="/img/houseshifting1.jpg" alt="">' +
-                            '</div>' +
-                            '<h4 class="mb-3">' + vehicle.model + '</h4>' +
-                            '<p><strong>Capacity:</strong> ' + vehicle.capacity + '</p>' +
-                            '<p><strong>Fuel Type:</strong> ' + vehicle.fuelType + '</p>' +
-                            '<div class="d-flex justify-content-between">' +
-                            '<button class="btn btn-primary btn-slide mt-2 mr-2" onclick="redirectToDetailsPage(' + vehicle.id + ')"><span>View Details</span> <i class="fa fa-eye"></i></button>' +
-                            '<button  onclick="onBook(' + vehicle.id + ')" class="btn btn-primary btn-slide mt-2"><span>Book</span> <i class="fa fa-book"></i></button>' +
-                            '</div>' +
-                            '</div>' +
-                            '</div>';
+                $('#vehicleContainer').empty();
+                console.log('Response:', response);
 
+                for (const vehicle of response) {
+                    const photoCell = $('<div>').addClass('overflow-hidden mb-4');
+                    let photoUrl = '/img/placeholder.jpg'; // Default placeholder image URL
 
-                        $('#vehicleContainer').append(vehicleItem);
-                    });
-                },
-                error: function(xhr, status, error) {
-                    // Handle errors
-                    console.error('Error:', error);
+                    if (vehicle && vehicle.photo && vehicle.photo.length > 0) {
+                        try {
+                            const url = await storage.ref().child(vehicle.photo[0].photoUrl).getDownloadURL();
+                            photoUrl = url; // Update photo URL if download is successful
+                        } catch (error) {
+                            console.error('Error generating download URL:', error);
+                        }
+                    }
+
+                    const thumbnail = $('<img>').attr('src', photoUrl)
+                        .attr('alt', 'Vehicle Photo')
+                        .addClass('img-thumbnail cust-image')
+
+                    photoCell.append(thumbnail);
+
+                    const vehicleItem = '<div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">' +
+                        '<div class="service-item p-4">' +
+                        '<div class="overflow-hidden mb-4">' +
+                        '</div>' +
+                        '<h4 class="mb-3">' + vehicle.model + '</h4>' +
+                        '<p><strong>Capacity:</strong> ' + vehicle.capacity + '</p>' +
+                        '<p><strong>Fuel Type:</strong> ' + vehicle.fuelType + '</p>' +
+                        '<div class="d-flex justify-content-between">' +
+                        '<button class="btn btn-primary btn-slide mt-2 mr-2" onclick="redirectToDetailsPage(' + vehicle.id + ')"><span>View Details</span> <i class="fa fa-eye"></i></button>' +
+                        '<button  onclick="onBook(' + vehicle.id + ')" class="btn btn-primary btn-slide mt-2"><span>Book</span> <i class="fa fa-book"></i></button>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>';
+
+                    $('#vehicleContainer').append(vehicleItem);
+                    photoCell.appendTo($('#vehicleContainer .service-item:last .overflow-hidden'));
                 }
-            });
+            } catch (error) {
+                console.error('Error:', error);
+            }
         }
+
     </script>
     <script th:inline="javascript">
         let destinationAddress = "";

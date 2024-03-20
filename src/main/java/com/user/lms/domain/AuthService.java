@@ -71,8 +71,7 @@ public class AuthService {
             passwordResetToken.setExpiryDate(LocalDateTime.now().plusMinutes(30));
 
             PasswordResetToken savedData = this.passwordResetTokenRepository.saveAndFlush(passwordResetToken);
-            String message = "To reset your password, please click the link: http://localhost:8090/resetPassword?token=" + savedData.getToken();
-            this.emailService.sendEmail(forgotPasswordModel.getEmail(), "Reset Password", message);
+            this.emailService.sendResetPasswordEmail(forgotPasswordModel.getEmail(),savedData.getToken());
         }
         model.addAttribute("successMessage", "Please check you email to reset the password!");
         return "/forgotpassword";
@@ -173,7 +172,7 @@ public class AuthService {
         userRole.setRole(role);
         this.userRoleRepository.saveAndFlush(userRole);
         String message = "To verify your email, please click the link: http://localhost:8090/verify?email=" + newUser.getEmail();
-        this.emailService.sendEmail(userModel.getEmail(), "Email Verification", message);
+        this.emailService.sendRegistrationEmail(newUser);
         Map<String, Object> data = new HashMap<>();
 
         data.put("user", new UserModel());

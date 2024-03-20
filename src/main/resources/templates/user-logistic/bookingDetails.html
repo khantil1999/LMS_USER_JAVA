@@ -117,7 +117,7 @@
                     <div class="header-wrapper">
                         <h2 class="mt-4">Booking Details</h2>
                         <div class="btn-group">
-                            <button id="backBtn" class="btn btn-primary">Back</button>
+                            <button onclick="onBack()" id="backBtn" class="btn btn-primary">Back</button>
                         </div>
                     </div>
                 </div>
@@ -402,6 +402,10 @@
                 console.error('Error uploading QR code:', error);
             }
         });
+    }
+
+    function onBack(){
+        window.location.href="/myBooking"
     }
 </script>
 

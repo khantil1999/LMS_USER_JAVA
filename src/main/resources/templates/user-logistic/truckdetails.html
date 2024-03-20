@@ -103,10 +103,14 @@
             object-fit: cover; /* Ensure the image covers the entire space */
         }
     </style>
+
 </head>
 
 <body>
-
+<script src="https://www.gstatic.com/firebasejs/8.2.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-storage.js"></script>
+<script src="/js/firebase-config.js"></script>
 
 
 <!-- Navbar Start -->
@@ -213,7 +217,7 @@
 <!-- Template Javascript -->
 <!-- <script src="/js/main.js"></script> -->
 <script th:inline="javascript">
-
+    const storage = firebase.storage();
     $(document).ready(function(){
        let id = getParameterByName("id",window.location.href)
         getVehiclesById(id)
@@ -235,6 +239,7 @@
                 // Handle successful response
                 console.log('Response:', response);
                 bindTruckDetails(response)
+                bindPhotos(response?.photo);
 
             },
             error: function(xhr, status, error) {
@@ -258,6 +263,41 @@
 
         // Add images to the carousel
     }
+
+    async function bindPhotos(photos) {
+        if (photos && photos.length) {
+            const promises = photos.map(async (photo) => {
+                try {
+                    const url = await storage.ref().child(photo.photoUrl).getDownloadURL();
+                    return url;
+                } catch (error) {
+                    console.error('Error generating download URL:', error);
+                    return null; // Return null if error occurs
+                }
+            });
+
+            try {
+                const urls = await Promise.all(promises); // Wait for all promises to resolve
+                const carouselInner = $('.carousel-inner');
+                carouselInner.empty();
+
+                urls.forEach((url, index) => {
+                    if (url) {
+                        const activeClass = index === 0 ? 'active' : '';
+                        const carouselItem = $('<div>').addClass('carousel-item ' + activeClass);
+                        const image = $('<img>').attr('src', url)
+                            .addClass('d-block image-size w-100')
+                            .attr('alt', '...');
+                        carouselItem.append(image);
+                        carouselInner.append(carouselItem);
+                    }
+                });
+            } catch (error) {
+                console.error('Error binding photos:', error);
+            }
+        }
+    }
+
 
 </script>
 </body>
