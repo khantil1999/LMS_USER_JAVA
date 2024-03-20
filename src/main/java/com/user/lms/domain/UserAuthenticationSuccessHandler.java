@@ -15,22 +15,15 @@ public class UserAuthenticationSuccessHandler extends SavedRequestAwareAuthentic
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws ServletException, IOException {
-        super.onAuthenticationSuccess(request, response, authentication);
-
-        // Custom logic to redirect to the home page
-        redirectUserToHomePage(request, response, authentication);
-    }
-
-    private void redirectUserToHomePage(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException {
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-
-        for (GrantedAuthority authority : authorities) {
-            if (authority.getAuthority().equals("USER")) {
-                response.sendRedirect("/index");
-                return;
-            }
+        authentication.getAuthorities().forEach(grantedAuthority -> {
+            System.out.println(grantedAuthority.getAuthority());
+        });
+        if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER"))) {
+            response.sendRedirect("/index");
+        }else {
+            response.sendRedirect("/default-index");
         }
 
     }
+
 }
