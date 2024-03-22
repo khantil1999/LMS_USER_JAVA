@@ -1,5 +1,7 @@
 package com.user.lms.domain;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.user.lms.entity.Booking;
 import com.user.lms.entity.BookingStatus;
 import com.user.lms.entity.User;
@@ -64,7 +66,9 @@ public class BookingService {
             booking.setNoOfLabourers((int) bookingSaveModel.getNoOfLabourers());
             booking.setStatus(BookingStatus.PROVIDER_PENDING);
 
-            this.bookingRepository.save(booking);
+            booking = this.bookingRepository.saveAndFlush(booking);
+            this.sendBookingPlacedEmailToTruckProvider(booking);
+            this.sendBookingPlacedEmailToCustomer(booking);
 
         }
         return "done";
@@ -215,6 +219,63 @@ public class BookingService {
             javaMailSender.send(mimeMessage);
         } catch (MessagingException e) {
 
+        }
+    }
+
+    public void sendBookingPlacedEmailToTruckProvider(Booking booking){
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+            Context context = new Context();
+            BookingModel bookingModel = BookingModel.fromEntity(booking);
+            bookingModel.setStartDestination(this.getLabelFromDestination(bookingModel.getStartDestination()));
+            bookingModel.setEndDestination(this.getLabelFromDestination(bookingModel.getEndDestination()));
+            context.setVariable("booking", bookingModel);
+
+
+            String htmlContent = templateEngine.process("booking-place-template-tp", context);
+
+            helper.setTo(bookingModel.getTruckProvider().getEmail());
+            helper.setSubject("Booking Placed By Customer");
+            helper.setText(htmlContent, true);
+            javaMailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+
+        }
+    }
+
+    public void sendBookingPlacedEmailToCustomer(Booking booking){
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+            Context context = new Context();
+            BookingModel bookingModel = BookingModel.fromEntity(booking);
+            bookingModel.setStartDestination(this.getLabelFromDestination(bookingModel.getStartDestination()));
+            bookingModel.setEndDestination(this.getLabelFromDestination(bookingModel.getEndDestination()));
+            context.setVariable("booking", bookingModel);
+
+
+            String htmlContent = templateEngine.process("booking-place-template", context);
+
+            helper.setTo(bookingModel.getUser().getEmail());
+            helper.setSubject("Booking Placed");
+            helper.setText(htmlContent, true);
+            javaMailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+
+        }
+    }
+
+    private String getLabelFromDestination(String destination) {
+
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+
+            JsonNode jsonNode = objectMapper.readTree(destination);
+            return jsonNode.get("label").asText();
+        } catch (Exception e) {
+            return "";
         }
     }
 }

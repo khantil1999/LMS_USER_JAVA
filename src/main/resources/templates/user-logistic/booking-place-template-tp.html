@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Booking Confirmation</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        section {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        h2, h3 {
+            color: #3498db;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table, th, td {
+            border: 1px solid #3498db;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #3498db;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<h2 style="text-align: center; color: #3498db;">Booking Placed By Customer</h2>
+<section>
+    <p>Dear Provider,</p>
+    <p>We're pleased to inform you that a customer has placed a booking request. Kindly take a moment to review and
+        decide whether to accept or reject it at your earliest convenience. Should you choose to accept the booking, we
+        kindly request that you add the charges accordingly. Thank you for your prompt attention to this matter.</p>
+</section>
+
+<section>
+    <h3>Customer Details:</h3>
+    <p>Customer Name: <span
+            th:text="${booking.getUser().getFirstName()} + ' ' + ${booking.getUser().getLastName()}"></span></p>
+    <p>Email: <span th:text="${booking.getUser().getEmail()}"></span></p>
+    <p>Phone: <span th:text="${booking.getUser().getMobileNo()}"></span></p>
+</section>
+
+<!-- Booking Details -->
+<section>
+    <h3>Booking Details:</h3>
+    <table>
+        <tr>
+            <th>Booking ID</th>
+            <th>Start Destination</th>
+            <th>End Destination</th>
+            <th>Booking Date</th>
+            <th>Distance</th>
+            <th>No of Labourers</th>
+        </tr>
+        <tr>
+            <td th:text="${booking.id}"></td>
+            <td th:text="${booking.startDestination}"></td>
+            <td th:text="${booking.endDestination}"></td>
+            <td th:text="${booking.bookingDate}"></td>
+            <td th:text="${booking.km}"></td>
+            <td th:text="${booking.noOfLabourers}"></td>
+        </tr>
+    </table>
+</section>
+<!-- Vehicle Details -->
+<section>
+    <h3>Vehicle Details:</h3>
+    <table>
+        <tr>
+            <th>Model</th>
+            <th>License Plate</th>
+            <th>Capacity</th>
+            <th>Manufacturer</th>
+            <th>Fuel Type</th>
+            <th>Current Mileage</th>
+            <th>Wheel</th>
+        </tr>
+        <tr>
+            <td th:text="${booking.vehicles.model}"></td>
+            <td th:text="${booking.vehicles.licensePlate}"></td>
+            <td th:text="${booking.vehicles.capacity}"></td>
+            <td th:text="${booking.vehicles.manufacturer}"></td>
+            <td th:text="${booking.vehicles.fuelType}"></td>
+            <td th:text="${booking.vehicles.currentMileage}"></td>
+            <td th:text="${booking.vehicles.wheel}"></td>
+        </tr>
+    </table>
+</section>
+
+<p>If you have any questions or concerns, please contact the provider.</p>
+
+</body>
+</html>
