@@ -320,7 +320,10 @@
         $('#bookingStatus').text(status);
 
         // Show/hide buttons based on status
-        if (bookingData.isTPApproved && !bookingData.isCustApproved) {
+        if( status ==='Cancel'){
+            $('.confirmBookingBtn').addClass('d-none');
+        }
+        else if (bookingData.isTPApproved && !bookingData.isCustApproved) {
             $('.confirmBookingBtn').removeClass('d-none');
         } else {
             $('.confirmBookingBtn').addClass('d-none');
